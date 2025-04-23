@@ -1,0 +1,29 @@
+# Generate new R package
+
+install.packages(c("devtools", "roxygen2", "usethis"))
+library(devtools)
+library(roxygen2)
+library(usethis)
+
+usethis::create_package("MyToolbox")
+
+# Add first function
+# Go to R/ New File --> R script
+
+# Save the R script → Saves your code.
+
+# Run load_all() → Makes your code changes available for testing.
+# load_all() loads everything in the R/ folder, so you don’t need to do anything special for each file
+# just make sure it’s saved and then run load_all().
+
+devtools::document()
+devtools::load_all()
+
+load_packages()
+prepare_patient_data(ettx_Binary, ettx_annotation, ETTX_genes)
+run_setup()
+
+# nested_cv()  # don't use this, it will not save into global environment objects
+# i.e. it will run but you won't be able to access or see any of the data.
+
+source(system.file("scripts/run_nested_cv.R", package = "MyToolbox"))
