@@ -1,12 +1,3 @@
----
-title: "Information about NestCV"
-author: "Karli Gilbert"
-date: "2025-04-25"
-output: 
-  html_document: 
-    keep_md: true
----
-
 # Study Purpose 
 
 #### Machine Learning Models Predict Treatment Outcome from Serum Proteins in Patients with Myasthenia Gravis that received Thymectomy
