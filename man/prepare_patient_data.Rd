@@ -7,11 +7,11 @@
 prepare_patient_data(data, annotation, gene_list)
 }
 \arguments{
-\item{gene_list}{Character vector of gene names to keep}
+\item{annotation}{Column name in annotation for outcome (must be binary/categorical)}
 
-\item{data_obj}{List containing \code{data} and \code{annotation}}
+\item{gene_list}{Character vector of gene names to keep (or features)}
 
-\item{class_col}{Column name in annotation for outcome (must be binary/categorical)}
+\item{data_obj}{Data frame or matrix containing features of interest}
 
 \item{treatment_col}{Optional column name in annotation to filter by treatment group}
 

@@ -1,17 +1,25 @@
 #' Prepare filtered data and outcome for modeling
 #'
-#' @param data_obj List containing `data` and `annotation`
-#' @param gene_list Character vector of gene names to keep
-#' @param class_col Column name in annotation for outcome (must be binary/categorical)
+#' @param data_obj Data frame or matrix containing features of interest
+#' @param gene_list Character vector of gene names to keep (or features)
+#' @param annotation Column name in annotation for outcome (must be binary/categorical)
 #' @param treatment_col Optional column name in annotation to filter by treatment group
 #' @param treatment_value Optional value in treatment_col to keep
 #'
 #' @return A list with `X` (features) and `Y` (binary outcome)
 #' @export
 prepare_patient_data <- function(data, annotation, gene_list) {
+  # Ensure data is a data frame
+  data <- as.data.frame(data)
+  # "sanitize" column names e.g., remove spaces, special characters, or make them syntactically valid in R
+  colnames(data) <- make.names(colnames(data))
   # Subset data to include only selected genes
   patientFeaturesData <- data[, gene_list]
 
+  # Ensure annotation is a data frame
+  annotation <- as.data.frame(annotation)
+  # "sanitize" column name
+  colnames(annotation) <- make.names(colnames(annotation))
   # Add the annotation as a new column (assuming it's already in 0's and 1's)
   patientFeaturesData$Survival_death <- annotation
 
