@@ -11,4 +11,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 3.5)
+    RColorBrewer, dplyr, ggplot2, tidyr, janitor, xgboost, rBayesianOptimization, Amelia, 
+    patchwork, SHAPforxgboost, tidyquant, tidyverse, caret, PRROC, viridis, randomForest,
+    JOUSBoost, rpart, naivebayes, psych, ggsignif, pROC, gridExtra, glmnet, pheatmap, ppcor,
+    reshape2, shapviz, kernelshap
 LazyData: true
