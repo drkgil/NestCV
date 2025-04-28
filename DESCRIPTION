@@ -26,7 +26,7 @@ Depends:
     viridis (>= 0.6.5),
     randomForest (>= 4.7-1.2),
     JOUSBoost (>= 2.1.0),
-    rpart (>= 4.1.24),
+    rpart (>= 4.1.23),
     naivebayes (>= 1.0.0),
     psych (>= 2.5.3),
     ggsignif (>= 0.6.4),
