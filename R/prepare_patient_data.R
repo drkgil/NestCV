@@ -13,8 +13,15 @@ prepare_patient_data <- function(data, annotation, gene_list) {
   data <- as.data.frame(data)
   # "sanitize" column names e.g., remove spaces, special characters, or make them syntactically valid in R
   colnames(data) <- make.names(colnames(data))
+
+  # If gene_list is not provided, use all columns
+  if (is.null(gene_list)) {
+    gene_list <- colnames(data)
+    message("No gene list provided; using all columns from data.")
+  }
+
   # Subset data to include only selected genes
-  patientFeaturesData <- data[, gene_list]
+  patientFeaturesData <- data[, gene_list, drop = FALSE]
 
   # Ensure annotation is a data frame
   annotation <- as.data.frame(annotation)
