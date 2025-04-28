@@ -23,18 +23,21 @@ This code uses the following machine learning models in a **5-fold nested cross-
 The inner loop performs hyperparameter tuning via **grid search**, using the `caret` package with its default 10-fold CV. The best parameters for each outer fold are recorded and used to evaluate model performance and select the final model.
 
 # 🚀 Quickstart
-Once you've downloaded or cloned the repository:
 
-**1. Open the NestCV R Project**
+**1. Install the NestCV Package**
 
-Open the .Rproj file in RStudio. This automatically sets the working directory for you.
+```r
 
-**2. Install Required Packages**
+devtools::install_github("drkgil/NestCV")
 
-Run the following R code to install the necessary packages:
+# if you get a message asking to update packages, type 1 for update all, and hit enter
+```
+
+**2. Load the library**
+
+Assuming successful installation of NestCV:
 ```r 
-# Install and load all required packages
-load_packages()
+library(NestCV)
 ```
 
 **3. Prepare Your Data**
@@ -59,7 +62,7 @@ prepare_patient_data(
 ```
 Running `prepare_patient_data()` will create global variables (data_X, data_Y, patientFeaturesData) that are _**required**_ for the other functions to work.
 
-If you receive an error that the objects do not exist, you may need to specify that the objects are from the package (R can be particular sometimes!) Adding NestCV:: should solve any issue:
+If you receive an error that the objects do not exist, you may need to specify that the objects are from the package (R can be particular sometimes!) Adding `NestCV::` should solve any issue:
 
 ```r
 # Run this if the code above did not work
@@ -67,7 +70,7 @@ If you receive an error that the objects do not exist, you may need to specify t
 NestCV::prepare_patient_data(
   data = NestCV::ettx_Binary, 
   annotation = NestCV::ettx_annotation, 
-  gene_list NestCV::ETTX_genes
+  gene_list = NestCV::ETTX_genes
 )
 ```
 
@@ -77,7 +80,7 @@ NestCV::prepare_patient_data(
 Copy and paste the following code into your R console to run the initial setup:
 
 ```r
-# Generate all objects necessary for saving results from the nCV 
+# Generate all objects necessary for saving results when running nCV 
 run_setup()
 ```
 
