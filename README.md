@@ -5,7 +5,7 @@
 Myasthenia Gravis (MG) is a rare autoimmune disease that causes muscle weakness. Approximately 80–85% of patients have antibodies against acetylcholine receptors (AChRs).
 This study aimed to identify serum proteins in MG patients that can predict improvement following thymectomy, based on reductions in the Quantitative MG (QMG) score.
 
-To achieve this, we applied **nested cross-validation (nCV)** to a proteomic dataset of 86 MG patients. nCV is particularly well-suited for smaller datasets, as it helps prevent overfitting by ensuring each sample is independently tested from the data used to train the model.
+To achieve this, we applied **nested cross-validation (nCV)** to a proteomic dataset of 86 MG patients, 45 of whom received a thymectomy. nCV is particularly well-suited for smaller datasets, as it helps prevent overfitting by ensuring each sample is independently tested from the data used to train the model.
 
 ## 💻 Machine Learning Models Used 
 
@@ -42,7 +42,7 @@ library(NestCV)
 
 **3. Prepare Your Data**
 
-This line of code creates an object named "patientFeaturesData" that will be used by the package. 
+This line of code creates an object named `patientFeaturesData` that will be used by the package. 
  
 Copy and use as is, or your substitute your own data for the arguments: 
  
