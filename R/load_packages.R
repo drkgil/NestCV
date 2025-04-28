@@ -1,4 +1,7 @@
 load_packages <- function() {
+  # Initialize summary_table as NULL
+  summary_table <- NULL
+  # List of CRAN packages
   cran_packages <- c("knitr", "kableExtra", "dplyr", "ggplot2", "tidyr", "janitor",
                      "ggalluvial", "xgboost", "rBayesianOptimization", "Amelia",
                      "patchwork", "SHAPforxgboost", "tidyquant", "tidyverse",
