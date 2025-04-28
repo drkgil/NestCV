@@ -2,8 +2,8 @@ Package: NestCV
 Title: Nested Cross Validation
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Karli", "Gilbert", , "karli.gilbert@gwu.edu", role = c("aut", "cre"))
+Description: This code uses the following machine learning models in a 5-fold nested cross-validation framework: Naïve Bayes (NB), Logistic Regression (Log), Least Absolute Shrinkage and Selection Operator (LASSO), Elastic Net (EN), Random Forest (RF), Classification Tree (CT or classTree), Adaptive Boosting (adaBoost), Extreme Gradient Boosting (XGBoost). The inner loop performs hyperparameter tuning via **grid search**, using the `caret` package with its default 10-fold CV. The best parameters for each outer fold are recorded and used to evaluate model performance and select the final model.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
