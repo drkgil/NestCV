@@ -62,7 +62,7 @@ prepare_patient_data(
 ```
 Running `prepare_patient_data()` will create global variables (data_X, data_Y, patientFeaturesData) that are _**required**_ for the other functions to work.
 
-If you receive an error that the objects do not exist, you may need to specify that the objects are from the package (R can be particular sometimes!) Adding `NestCV::` should solve any issue:
+If you receive an error when using the example data that the objects do not exist, you may need to specify that the objects are from the package (R can be particular sometimes!) Adding `NestCV::` should solve any issue:
 
 ```r
 # Run this if the code above did not work
