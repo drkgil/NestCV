@@ -8,7 +8,7 @@
 #'
 #' @return A list with `X` (features) and `Y` (binary outcome)
 #' @export
-prepare_patient_data <- function(data, annotation, gene_list) {
+prepare_patient_data <- function(data, annotation, gene_list = NULL) {
   # Ensure data is a data frame
   data <- as.data.frame(data)
   # "sanitize" column names e.g., remove spaces, special characters, or make them syntactically valid in R
