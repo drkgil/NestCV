@@ -7,6 +7,16 @@ for (i in seq_along(outer_folds)) {
   outer_train <- patientFeaturesData[-test_indices, ]
   outer_test <- patientFeaturesData[test_indices, ]
 
+  # ==== FIX: unwrap Survival_death if it's a data frame column ====
+  if (is.data.frame(outer_train$Survival_death)) {
+    outer_train$Survival_death <- outer_train$Survival_death[,1]
+  }
+  if (is.data.frame(outer_test$Survival_death)) {
+    outer_test$Survival_death <- outer_test$Survival_death[,1]
+  }
+  # ================================================================
+
+
   # Remove rows with NA values before processing
   outer_train <- na.omit(outer_train)
   outer_test <- na.omit(outer_test)
@@ -15,12 +25,18 @@ for (i in seq_along(outer_folds)) {
   X_outer_test <- as.matrix(outer_test[, -ncol(outer_test)])
   Y_outer_test  <- factor(outer_test$Survival_death, levels = c(0,1))  # ensure that there are always 2 levels, regardless of how the data splits!
   X_outer_train <- as.matrix(outer_train[, -ncol(outer_train)])
+  #Y_outer_train <- factor(outer_train$Survival_death)
   Y_outer_train <- factor(outer_train$Survival_death)
   Y_outer_train <- as.numeric(Y_outer_train) -1
 
-
   # Inner loop (nested 4-fold CV)
+  set.seed(123)
   inner_folds <- createFolds(outer_train$Survival_death, k = 4, list = TRUE)
+  for (j in seq_along(inner_folds)) {
+    fold_y <- outer_train$Survival_death[inner_folds[[j]]]
+    print(table(fold_y))
+  }
+
 
   # Initialize objects
   inner_fold_params <- vector("list", length(inner_folds))

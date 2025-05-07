@@ -13,9 +13,27 @@ run_setup <- function() {
   assign("train_control", train_control, envir = .GlobalEnv)
 
   # Outer loop: create 5 folds for the 80:20 outer split
+  #set.seed(123)
+  #outer_folds <- createFolds(data_Y[, 1], k = 5)
+  #assign("outer_folds", outer_folds, envir = .GlobalEnv)
+
+  # Outer loop: create 5 folds for the 80:20 outer split
   set.seed(123)
-  outer_folds <- createFolds(data_Y[, 1], k = 5)
+
+  # Function to check if each fold has at least one of each class
+  is_valid_fold <- function(fold_indices, labels) {
+    test_labels <- labels[fold_indices]
+    length(unique(test_labels)) > 1
+  }
+
+  # Create folds and check if each fold contains both classes
+  repeat {
+    outer_folds <- createFolds(data_Y[, 1], k = 5)
+    if (all(sapply(outer_folds, is_valid_fold, labels = data_Y[, 1]))) break
+  }
+
   assign("outer_folds", outer_folds, envir = .GlobalEnv)
+
 
   # Initialize results storage objects
   outer_results <- vector("list", length(outer_folds))
