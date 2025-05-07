@@ -4,7 +4,7 @@
 \alias{prepare_patient_data}
 \title{Prepare filtered data and outcome for modeling}
 \usage{
-prepare_patient_data(data, annotation, gene_list)
+prepare_patient_data(data, annotation, gene_list = NULL)
 }
 \arguments{
 \item{annotation}{Column name in annotation for outcome (must be binary/categorical)}
