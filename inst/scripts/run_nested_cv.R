@@ -15,7 +15,7 @@ for (i in seq_along(outer_folds)) {
   X_outer_test <- as.matrix(outer_test[, -ncol(outer_test)])
   Y_outer_test  <- factor(outer_test$Survival_death, levels = c(0,1))  # ensure that there are always 2 levels, regardless of how the data splits!
   X_outer_train <- as.matrix(outer_train[, -ncol(outer_train)])
-  Y_outer_train <- as.factor(outer_train$Survival_death)
+  Y_outer_train <- factor(outer_train$Survival_death)
   Y_outer_train <- as.numeric(Y_outer_train) -1
 
 
