@@ -570,43 +570,125 @@ for (i in seq_along(outer_folds)) {
    nb_roc$predictions[[i]] <- nb_roc_pred_ind[, 2]
    nb_roc$labels[[i]] <- Y_outer_test
 
+   # Ensure predictions are valid
+   if (ncol(nb_roc_pred_ind) >= 2) {
+     nb_roc$predictions[[i]] <- nb_roc_pred_ind[, 2]
+     nb_roc$labels[[i]] <- Y_outer_test
+     nb_roc_predictions <- nb_roc_pred_ind
+
+     # Perform prediction object creation
+     nb_roc_pred <- prediction(nb_roc_predictions[, 2], Y_outer_test)
+
+     # Use tryCatch to prevent breaking the loop on performance calculation
+     nb_roc_perf[[i]] <- tryCatch({
+       performance(nb_roc_pred, "tpr", "fpr")
+     }, error = function(e) {
+       warning(paste("Error in NB performance for fold", i, ":", e$message))
+       return(NULL)  # Return NULL if an error occurs
+     })
+
+     # Check if nb_roc_perf is valid before proceeding
+     if (!is.null(nb_roc_perf[[i]])) {
+       nb_auc <- performance(nb_roc_pred, measure = "auc")
+       nb_auc_value[[i]] <- nb_auc@y.values[[1]]
+       nb_aucpr <- performance(nb_roc_pred, measure = "aucpr")
+       nb_aucpr_value[[i]] <- nb_aucpr@y.values[[1]]
+       nb_pr_perf[[i]] <- performance(nb_roc_pred, "prec", "rec")
+     }
+   } else {
+     warning(paste("NB predictions were invalid or missing columns for fold", i))
+   }
 
 
   # Logistic Regression
   log_roc_predictions <- unname(unclass(predict(log_outer_model, data.frame(X_outer_test), type = "response")))
   log_roc$predictions[[i]] <- log_roc_predictions
   log_roc$labels[[i]] <- Y_outer_test
-
+  log_roc_prob_clean <- as.numeric(log_roc_predictions > 0.5)
+  log_roc_pred <- prediction(log_roc_prob_clean, Y_outer_test)
+  log_roc_perf[[i]] <- performance(log_roc_pred, "tpr", "fpr")
+  log_auc <- performance(log_roc_pred, measure = "auc")
+  log_auc_value[[i]] <- log_auc@y.values[[1]]
+  log_aucpr <- performance(log_roc_pred, measure = "aucpr")
+  log_aucpr_value[[i]] <- log_aucpr@y.values[[1]]
+  log_pr_perf[[i]] <- performance(log_roc_pred, "prec", "rec")
 
   # LASSO
   lasso_roc$predictions[[i]] <- predict(lasso_outer_model, newx = X_outer_test, s = "lambda.min")
   lasso_roc$labels[[i]] <- Y_outer_test
+  lasso_roc_predictions <- predict(lasso_outer_model, newx = X_outer_test, s = "lambda.min")
+  lasso_roc_pred <- prediction(lasso_roc_predictions, Y_outer_test)
+  lasso_roc_perf[[i]] <- performance(lasso_roc_pred, "tpr", "fpr")
+  lasso_auc <- performance(lasso_roc_pred, measure = "auc")
+  lasso_auc_value[[i]] <- lasso_auc@y.values[[1]]
+  lasso_aucpr <- performance(lasso_roc_pred, measure = "aucpr")
+  lasso_aucpr_value[[i]] <- lasso_aucpr@y.values[[1]]
+  lasso_pr_perf[[i]] <- performance(lasso_roc_pred, "prec", "rec")
 
   # Elastic Net
   en_roc$predictions[[i]] <- predict(en_outer_model, newx = X_outer_test, s = "lambda.min")
   en_roc$labels[[i]] <- Y_outer_test
+  en_roc_predictions <- predict(en_outer_model, newx = X_outer_test, s = "lambda.min")
+  en_roc_pred <- prediction(en_roc_predictions, Y_outer_test)
+  en_roc_perf[[i]] <- performance(en_roc_pred, "tpr", "fpr")
+  en_auc <- performance(en_roc_pred, measure = "auc")
+  en_auc_value[[i]] <- en_auc@y.values[[1]]
+  en_aucpr <- performance(en_roc_pred, measure = "aucpr")
+  en_aucpr_value[[i]] <- en_aucpr@y.values[[1]]
+  en_pr_perf[[i]] <- performance(en_roc_pred, "prec", "rec")
 
   # Random Forest
   rf_roc_pred_ind <- predict(rf_outer_model, X_outer_test, type = "prob")
   rf_roc$predictions[[i]] <- rf_roc_pred_ind[,2]
   rf_roc$labels[[i]] <- Y_outer_test
+  rf_roc_predictions <- predict(rf_outer_model, X_outer_test, type = "prob")
+  rf_roc_pred <- prediction(rf_roc_predictions[,2], Y_outer_test)
+  rf_roc_perf[[i]] <- performance(rf_roc_pred, "tpr", "fpr")
+  rf_auc <- performance(rf_roc_pred, measure = "auc")
+  rf_auc_value[[i]] <- rf_auc@y.values[[1]]
+  rf_aucpr <- performance(rf_roc_pred, measure = "aucpr")
+  rf_aucpr_value[[i]] <- rf_aucpr@y.values[[1]]
+  rf_pr_perf[[i]] <- performance(rf_roc_pred, "prec", "rec")
 
 
   # Classification Tree
   ct_roc_pred_ind <- predict(ct_outer_model, data.frame(X_outer_test), type = "prob")
   ct_roc$predictions[[i]] <- ct_roc_pred_ind[,2]
   ct_roc$labels[[i]] <- Y_outer_test
+  ct_roc_predictions <- predict(ct_outer_model, data.frame(X_outer_test), type = "prob")
+  ct_roc_pred <- prediction(ct_roc_predictions[,2], Y_outer_test)
+  ct_roc_perf[[i]] <- performance(ct_roc_pred, "tpr", "fpr")
+  ct_auc <- performance(ct_roc_pred, measure = "auc")
+  ct_auc_value[[i]] <- ct_auc@y.values[[1]]
+  ct_aucpr <- performance(ct_roc_pred, measure = "aucpr")
+  ct_aucpr_value[[i]] <- ct_aucpr@y.values[[1]]
+  ct_pr_perf[[i]] <- performance(ct_roc_pred, "prec", "rec")
 
   # adaBoost
   ada_roc$predictions[[i]] <- predict(ada_outer_model, X_outer_test, type = "prob")
   ada_roc$labels[[i]] <- Y_outer_test
+  ada_roc_predictions <- predict(ada_outer_model, X_outer_test, type = "prob")
+  ada_roc_pred <- prediction(ada_roc_predictions, Y_outer_test)
+  ada_roc_perf[[i]] <- performance(ada_roc_pred, "tpr", "fpr")
+  ada_auc <- performance(ada_roc_pred, measure = "auc")
+  ada_auc_value[[i]] <- ada_auc@y.values[[1]]
+  ada_aucpr <- performance(ada_roc_pred, measure = "aucpr")
+  ada_aucpr_value[[i]] <- ada_aucpr@y.values[[1]]
+  ada_pr_perf[[i]] <- performance(ada_roc_pred, "prec", "rec")
 
 
 
   # XGBoost
   xgb_roc$predictions[[i]] <- predict(xgb_outer_model, dtest, type = "prob")
   xgb_roc$labels[[i]] <- Y_outer_test
-
+  xgb_roc_predictions <- predict(xgb_outer_model, dtest, type = "prob")
+  xgb_roc_pred <- prediction(xgb_roc_predictions, Y_outer_test)
+  xgb_roc_perf[[i]] <- performance(xgb_roc_pred, "tpr", "fpr")
+  xgb_auc <- performance(xgb_roc_pred, measure = "auc")
+  xgb_auc_value[[i]] <- xgb_auc@y.values[[1]]
+  xgb_aucpr <- performance(xgb_roc_pred, measure = "aucpr")
+  xgb_aucpr_value[[i]] <- xgb_aucpr@y.values[[1]]
+  xgb_pr_perf[[i]] <- performance(xgb_roc_pred, "prec", "rec")
 
 
   # pROC can do statistics comparing 2 auc!!

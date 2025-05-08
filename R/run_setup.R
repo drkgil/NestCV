@@ -17,36 +17,44 @@ run_setup <- function() {
   #outer_folds <- createFolds(data_Y[, 1], k = 5)
   #assign("outer_folds", outer_folds, envir = .GlobalEnv)
 
+
   # Outer loop: create 5 folds for the 80:20 outer split
   set.seed(123)
 
-  # Function to check if each fold has at least one of each class
-  #is_valid_fold <- function(fold_indices, labels) {
-   # test_labels <- labels[fold_indices]
-   # length(unique(test_labels)) > 1
-  #}
-  # Corrected function: ensure each outer_test set has both classes
   is_valid_fold <- function(test_indices, labels) {
     test_labels <- labels[test_indices]
     return(length(unique(test_labels)) == 2)
   }
 
-  # Create folds and check if each fold contains both classes
- # repeat {
-  #  outer_folds <- createFolds(data_Y[, 1], k = 5)
-   # if (all(sapply(outer_folds, is_valid_fold, labels = data_Y[, 1]))) break
-  #}
+  max_attempts <- 100
+  attempt <- 0
 
   repeat {
-    outer_folds <- createFolds(data_Y[, 1], k = 5)
+    attempt <- attempt + 1
+    outer_folds <- createFolds(data_Y[, 1], k = 5, returnTrain = FALSE)
 
-    # Check if each fold's test set contains both classes
+    # Check if every test set (fold) contains both classes
     valid_folds <- all(sapply(outer_folds, is_valid_fold, labels = data_Y[, 1]))
 
-    if (valid_folds) break
+    if (valid_folds) {
+      assign("outer_folds", outer_folds, envir = .GlobalEnv)
+      break
+    }
+
+    if (attempt >= max_attempts) {
+      stop("Failed to generate valid outer folds with both classes in each test set after 100 attempts.")
+    }
   }
 
-  assign("outer_folds", outer_folds, envir = .GlobalEnv)
+  # Confirm BEFORE running run_nested_cv.r that each fold will have at least 1 in each binary classification
+  surv <- patientFeaturesData[["Survival_death"]]
+  surv_vec <- surv$annotation
+
+  for (fold_name in names(outer_folds)) {
+    cat(fold_name, ":\n")
+    print(table(surv_vec[outer_folds[[fold_name]]]))
+    cat("\n")
+  }
 
 
   # Initialize results storage objects
