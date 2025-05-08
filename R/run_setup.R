@@ -21,15 +21,29 @@ run_setup <- function() {
   set.seed(123)
 
   # Function to check if each fold has at least one of each class
-  is_valid_fold <- function(fold_indices, labels) {
-    test_labels <- labels[fold_indices]
-    length(unique(test_labels)) > 1
+  #is_valid_fold <- function(fold_indices, labels) {
+   # test_labels <- labels[fold_indices]
+   # length(unique(test_labels)) > 1
+  #}
+  # Corrected function: ensure each outer_test set has both classes
+  is_valid_fold <- function(test_indices, labels) {
+    test_labels <- labels[test_indices]
+    return(length(unique(test_labels)) == 2)
   }
 
   # Create folds and check if each fold contains both classes
+ # repeat {
+  #  outer_folds <- createFolds(data_Y[, 1], k = 5)
+   # if (all(sapply(outer_folds, is_valid_fold, labels = data_Y[, 1]))) break
+  #}
+
   repeat {
     outer_folds <- createFolds(data_Y[, 1], k = 5)
-    if (all(sapply(outer_folds, is_valid_fold, labels = data_Y[, 1]))) break
+
+    # Check if each fold's test set contains both classes
+    valid_folds <- all(sapply(outer_folds, is_valid_fold, labels = data_Y[, 1]))
+
+    if (valid_folds) break
   }
 
   assign("outer_folds", outer_folds, envir = .GlobalEnv)
