@@ -90,7 +90,7 @@ Simply copy and paste the following code into your R console.
 
 ```r
 # Takes ~ 1 hour to complete using the provided example code.
-run_nested_cv()
+nested_cv()
 ```
 
 *** 
