@@ -1,3 +1,5 @@
+#' @title Load Necessary Packages
+#' @description Loads all necessary packages and installs if they haven't been already, also initializes a summary table 
 #' @export
 load_packages <- function() {
   # Initialize summary_table as NULL
