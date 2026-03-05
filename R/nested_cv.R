@@ -499,8 +499,8 @@ for (i in seq_along(outer_folds)) {
 
   con_NB        <- caret::confusionMatrix(nb_outer_predictions01,        Y_outer_test01, positive = "1")
   con_Logistic  <- caret::confusionMatrix(log_outer_predictions01,       Y_outer_test01, positive = "1")
-  con_lasso     <- caret::confusionMatrix(lasso_outer_predictions01,     Y_outer_test01, positive = "1")
-  con_en        <- caret::confusionMatrix(en_outer_predictions01,        Y_outer_test01, positive = "1")
+  con_lasso     <- caret::confusionMatrix(as.factor(lasso_outer_predictions),     Y_outer_test01, positive = "1")
+  con_en        <- caret::confusionMatrix(as.factor(en_outer_predictions),        Y_outer_test01, positive = "1")
   con_RF        <- caret::confusionMatrix(rf_outer_predictions01,        Y_outer_test01, positive = "1")
   con_classTree <- caret::confusionMatrix(ct_outer_predictions01,        Y_outer_test01, positive = "1")
   con_adaBoost  <- caret::confusionMatrix(ada_outer_predictions01,       Y_outer_test01, positive = "1")
