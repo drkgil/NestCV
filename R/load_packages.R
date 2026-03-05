@@ -1,10 +1,8 @@
-#' @title Load Necessary Packages
-#' @description Loads all necessary packages and installs if they haven't been already, also initializes a summary table 
+#' @title Load Packages
+#' @description Loads all necessary packages and installs if they haven't been already
 #' @export
 load_packages <- function() {
-  # Initialize summary_table as NULL
-  summary_table <- NULL
-  assign("summary_table", summary_table, envir = .GlobalEnv)
+
   # List of CRAN packages
   cran_packages <- c("knitr", "kableExtra", "dplyr", "ggplot2", "tidyr", "janitor",
                      "ggalluvial", "xgboost", "rBayesianOptimization", "Amelia",

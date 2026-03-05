@@ -3,6 +3,10 @@
 #' @export
 run_setup <- function() {
 
+  # Initialize summary_table as NULL
+  summary_table <- NULL
+  assign("summary_table", summary_table, envir = .GlobalEnv)
+
   # Initialize training settings for the 'caret' package
   train_control <- trainControl(
     method = "cv",

@@ -9,19 +9,27 @@ for (i in seq_along(outer_folds)) {
   # Outer train/test split
   test_indices <- outer_folds[[i]]
   outer_train <- patientFeaturesData[-test_indices, ]
-  outer_test <- patientFeaturesData[test_indices, ]
+  outer_test  <- patientFeaturesData[test_indices, ]
 
-  # Remove rows with NA values before processing
+  # ---- Fix nested outcome FIRST (train + test) ----
+  if (is.data.frame(outer_train$Survival_death)) {
+    outer_train$Survival_death <- outer_train$Survival_death$annotation
+  }
+  if (is.data.frame(outer_test$Survival_death)) {
+    outer_test$Survival_death <- outer_test$Survival_death$annotation
+  }
+
+  # ---- Drop NAs AFTER fixing the outcome type ----
   outer_train <- na.omit(outer_train)
-  outer_test <- na.omit(outer_test)
+  outer_test  <- na.omit(outer_test)
 
-  # Make them VALID factors
-  X_outer_test <- as.matrix(outer_test[, -ncol(outer_test)])
-  Y_outer_test  <- factor(outer_test$Survival_death, levels = c(0,1))  # ensure that there are always 2 levels, regardless of how the data splits!
+  # ---- Build X/Y AFTER NA dropping ----
   X_outer_train <- as.matrix(outer_train[, -ncol(outer_train)])
-  outer_train$Survival_death <- outer_train$Survival_death$annotation # fixes nested data frame column
-  Y_outer_train <- as.factor(outer_train$Survival_death)
-  Y_outer_train_num <- as.numeric(Y_outer_train) -1 # renamed as a separate object
+  X_outer_test  <- as.matrix(outer_test[,  -ncol(outer_test)])
+
+  Y_outer_train <- factor(outer_train$Survival_death, levels = c(0, 1))
+  Y_outer_test  <- factor(outer_test$Survival_death,  levels = c(0, 1))
+  Y_outer_train_num <- as.numeric(Y_outer_train) - 1
 
 
   # Inner loop (nested 4-fold CV)
@@ -152,17 +160,17 @@ for (i in seq_along(outer_folds)) {
       #   min_child_weight = c(1, 5),  # Minimum sum of instance weight (hessian) in a child
       #   subsample = c(0.6, 0.8, 1)  # Fraction of samples used to train each tree
       # )
-      # 
+      #
       # # Placeholder for best model and performance tracking
       # best_xgb_model <- NULL
       # best_xgb_accuracy <- -Inf
       # # Prepare Y labels for XGB
       # Y_xgb <- as.numeric(factor(Y_inner_train)) - 1
-      # 
+      #
       # # Iterate over parameter grid
       # for(k in 1:nrow(param_grid)) {
       #   params <- param_grid[k, ]
-      # 
+      #
       #   # Set up model parameters
       #   xgb_params <- list(
       #     objective = "binary:logistic",
@@ -184,7 +192,7 @@ for (i in seq_along(outer_folds)) {
       #     watchlist = list("train" = inner_dtrain),
       #     verbose = 0  # Turn off verbose output for clarity
       #   )
-      # 
+      #
       #   # Track best model based on accuracy
       #   predictions <- predict(xgboost_model, X_inner_train)
       #   accuracy <- mean(predictions == Y_xgb)  # Calculate accuracy
@@ -193,10 +201,10 @@ for (i in seq_along(outer_folds)) {
       #     best_xgb_model <- xgboost_model
       #   }
       # }
-      # 
+      #
       # # You now have the best_xgb_model with the highest accuracy
-      # 
-      # 
+      #
+      #
       # xgb_inner_predictions <- predict(best_xgb_model, X_inner_test)
 
         # ---------------- XGBoost (FIXED) ----------------
@@ -211,18 +219,18 @@ for (i in seq_along(outer_folds)) {
         KEEP.OUT.ATTRS = FALSE,
         stringsAsFactors = FALSE
     )
-    
+
     Y_xgb_train <- as.numeric(Y_inner_train) - 1
     inner_dtrain <- xgb.DMatrix(data = X_inner_train, label = Y_xgb_train)
-    
+
     best_xgb_model   <- NULL
     best_xgb_params  <- NULL
     best_xgb_nrounds <- NULL
     best_xgb_score   <- -Inf
-    
+
     for (k in seq_len(nrow(param_grid))) {
         row <- param_grid[k, ]
-        
+
         xgb_params <- list(
             objective = "binary:logistic",
             eval_metric = "auc",
@@ -233,7 +241,7 @@ for (i in seq_along(outer_folds)) {
             min_child_weight = as.numeric(row$min_child_weight),
             subsample = as.numeric(row$subsample)
         )
-        
+
         bst <- xgb.train(
             data = inner_dtrain,
             params = xgb_params,
@@ -242,12 +250,12 @@ for (i in seq_along(outer_folds)) {
             watchlist = list(train = inner_dtrain),
             verbose = 0
         )
-        
+
         # Correct accuracy calculation (probabilities -> class)
         p_train <- predict(bst, X_inner_train)
         pred_train <- as.integer(p_train > 0.5)
         acc_train <- mean(pred_train == Y_xgb_train)
-        
+
         if (is.finite(acc_train) && acc_train > best_xgb_score) {
             best_xgb_score   <- acc_train
             best_xgb_model   <- bst
@@ -255,7 +263,7 @@ for (i in seq_along(outer_folds)) {
             best_xgb_nrounds <- as.integer(row$nrounds)
         }
     }
-    
+
     p_test <- predict(best_xgb_model, X_inner_test)
     xgb_inner_predictions <- factor(
         ifelse(p_test > 0.5, "Class1", "Class0"),
