@@ -452,11 +452,11 @@ for (i in seq_along(outer_folds)) {
 
   # Naive Bayes (returns class labels)
   nb_outer_predictions <- predict(nb_outer_model, as.data.frame(X_outer_test))
-  nb_outer_predictions01 <- to01(nb_outer_predictions, n_test, "NaiveBayes")
+  nb_outer_predictions <- to01(nb_outer_predictions, n_test, "NaiveBayes")
 
   # Logistic Regression (use response probs)
   log_outer_prob <- as.numeric(predict(log_outer_model, newdata = as.data.frame(X_outer_test), type = "response"))
-  log_outer_predictions01 <- to01(log_outer_prob, n_test, "Logistic")
+  log_outer_predictions <- to01(log_outer_prob, n_test, "Logistic")
 
   # # LASSO (cv.glmnet) -> probs
   # lasso_outer_prob <- as.numeric(predict(lasso_outer_model, newx = X_outer_test, s = "lambda.min"))
@@ -476,11 +476,11 @@ for (i in seq_along(outer_folds)) {
 
   # Random Forest (returns class labels if type="response")
   rf_outer_predictions <- predict(rf_outer_model, as.data.frame(X_outer_test), type = "response")
-  rf_outer_predictions01 <- to01(rf_outer_predictions, n_test, "RF")
+  rf_outer_predictions <- to01(rf_outer_predictions, n_test, "RF")
 
   # Classification Tree (class)
   ct_outer_predictions <- predict(ct_outer_model, newdata = as.data.frame(X_outer_test), type = "class")
-  ct_outer_predictions01 <- to01(ct_outer_predictions, n_test, "ClassTree")
+  ct_outer_predictions <- to01(ct_outer_predictions, n_test, "ClassTree")
 
   # AdaBoost (your predict gives -1/1 or 0/1 depending on package; normalize)
   ada_outer_raw <- predict(ada_outer_model, X_outer_test)
@@ -488,23 +488,23 @@ for (i in seq_along(outer_folds)) {
   if (is.numeric(ada_outer_raw) && all(na.omit(unique(ada_outer_raw)) %in% c(-1, 1))) {
     ada_outer_raw <- ifelse(ada_outer_raw == 1, "1", "0")
   }
-  ada_outer_predictions01 <- to01(ada_outer_raw, n_test, "AdaBoost")
+  ada_outer_predictions <- to01(ada_outer_raw, n_test, "AdaBoost")
 
   # XGBoost -> probs
   dtest <- xgb.DMatrix(data = X_outer_test)
   xgb_outer_prob <- as.numeric(predict(xgb_outer_model, newdata = dtest))
-  xgb_outer_predictions01 <- to01(xgb_outer_prob, n_test, "XGBoost")
+  xgb_outer_predictions <- to01(xgb_outer_prob, n_test, "XGBoost")
 
   # ---------------- Confusion Matrices (with explicit checks) ----------------
 
-  con_NB        <- caret::confusionMatrix(nb_outer_predictions01,        Y_outer_test01, positive = "1")
-  con_Logistic  <- caret::confusionMatrix(log_outer_predictions01,       Y_outer_test01, positive = "1")
+  con_NB        <- caret::confusionMatrix(nb_outer_predictions,        Y_outer_test01, positive = "1")
+  con_Logistic  <- caret::confusionMatrix(log_outer_predictions,       Y_outer_test01, positive = "1")
   con_lasso     <- caret::confusionMatrix(as.factor(lasso_outer_predictions),     Y_outer_test01, positive = "1")
   con_en        <- caret::confusionMatrix(as.factor(en_outer_predictions),        Y_outer_test01, positive = "1")
-  con_RF        <- caret::confusionMatrix(rf_outer_predictions01,        Y_outer_test01, positive = "1")
-  con_classTree <- caret::confusionMatrix(ct_outer_predictions01,        Y_outer_test01, positive = "1")
-  con_adaBoost  <- caret::confusionMatrix(ada_outer_predictions01,       Y_outer_test01, positive = "1")
-  con_XGB       <- caret::confusionMatrix(xgb_outer_predictions01,       Y_outer_test01, positive = "1")
+  con_RF        <- caret::confusionMatrix(rf_outer_predictions,        Y_outer_test01, positive = "1")
+  con_classTree <- caret::confusionMatrix(ct_outer_predictions,        Y_outer_test01, positive = "1")
+  con_adaBoost  <- caret::confusionMatrix(ada_outer_predictions,       Y_outer_test01, positive = "1")
+  con_XGB       <- caret::confusionMatrix(xgb_outer_predictions,       Y_outer_test01, positive = "1")
 
   MCC_NB <- list(
     TP <- con_NB$table[[4]],
