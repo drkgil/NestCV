@@ -1,3 +1,4 @@
+#' @export
 load_packages <- function() {
   # Initialize summary_table as NULL
   summary_table <- NULL
