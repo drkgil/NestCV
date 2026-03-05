@@ -10,7 +10,7 @@ load_packages <- function() {
                      "caret", "PRROC", "viridis", "randomForest", "JOUSBoost",
                      "rpart", "naivebayes", "psych", "ggsignif", "pROC", "gridExtra",
                      "glmnet", "pheatmap", "ppcor", "reshape2", "kernelshap",
-                     "RColorBrewer", "ROCR")
+                     "RColorBrewer", "ROCR", "adabag")
 
   # For custom packages not on CRAN (e.g., shapviz)
   github_packages <- c("shapviz")
