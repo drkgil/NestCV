@@ -21,7 +21,7 @@ for (i in seq_along(outer_folds)) {
   X_outer_train <- as.matrix(outer_train[, -ncol(outer_train)])
   outer_train$Survival_death <- outer_train$Survival_death$annotation # fixes nested data frame column
   Y_outer_train <- as.factor(outer_train$Survival_death)
-  Y_outer_train <- as.numeric(Y_outer_train) -1
+  Y_outer_train_num <- as.numeric(Y_outer_train) -1 # renamed as a separate object
 
 
   # Inner loop (nested 4-fold CV)
@@ -327,17 +327,17 @@ for (i in seq_along(outer_folds)) {
 
   nb_outer_model <- e1071::naiveBayes(factor(Survival_death) ~ ., data = outer_train, usekernel = best_params$nb$usekernel, laplace = best_params$nb$laplace)
   log_outer_model <- glm(Survival_death ~ ., data = outer_train, family = "binomial")
-  lasso_outer_fit <- glmnet(X_outer_train, Y_outer_train, family = "binomial")
+  lasso_outer_fit <- glmnet(X_outer_train, Y_outer_train_num, family = "binomial")
   set.seed(123)
-  lasso_outer_model <- cv.glmnet(X_outer_train, Y_outer_train)
+  lasso_outer_model <- cv.glmnet(X_outer_train, Y_outer_train_num)
   set.seed(123)
-  en_outer_model <- cv.glmnet(X_outer_train, Y_outer_train, alpha = best_params$en$alpha)
+  en_outer_model <- cv.glmnet(X_outer_train, Y_outer_train_num, alpha = best_params$en$alpha)
   rf_outer_model <- randomForest::randomForest(factor(Survival_death) ~., data = outer_train, importance = TRUE, mtry = best_params$rf$mtry)
   # ct_outer_model <- rpart(factor(Survival_death) ~ ., data = outer_train, method = "class", control = rpart.control(cp = best_params$classtree$cp))
   ct_outer_model <- rpart(factor(Survival_death) ~ ., data = outer_train, method = "class")
   ada_outer_Y <- ifelse(Y_outer_train == 0, -1, 1)
   ada_outer_model <- adaboost(X_outer_train, ada_outer_Y, verbose = FALSE, control = rpart::rpart.control(maxdepth = best_params$adaboost$maxdepth), n_rounds = best_params$adaboost$mfinal)
-  dtrain <- xgb.DMatrix(data = X_outer_train, label = Y_outer_train)
+  dtrain <- xgb.DMatrix(data = X_outer_train, label = Y_outer_train_num)
   params <- list("max_depth" = best_params$xgboost$max_depth, "eta" = best_params$xgboost$eta, "gamma" = best_params$xgboost$gamma, "colsample_bytree" = best_params$xgboost$colsample_bytree, "min_child_weight" = best_params$xgboost$min_child_weight, "subsample" = best_params$xgboost$subsample, "objective"="binary:logistic", "eval_metric"= "auc")
   xgb_outer_model <- xgb.train(params = params, data = dtrain, watchlist = list("train" = dtrain), early_stopping_rounds = 10, nrounds = 100, verbose = 0)
 
