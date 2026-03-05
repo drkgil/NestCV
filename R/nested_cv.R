@@ -142,63 +142,125 @@ for (i in seq_along(outer_folds)) {
     # trControl = train_control
     #)
 
-    # Create a parameter grid
+          # # Create a parameter grid
+      # param_grid <- expand.grid(
+      #   nrounds = c(100, 200),  # Number of boosting rounds
+      #   max_depth = c(3, 6, 9),  # Depth of the trees
+      #   eta = c(0.1, 0.3, 0.5),  # Learning rate
+      #   gamma = c(0, 1),  # Minimum loss reduction required to make a further partition
+      #   colsample_bytree = c(0.6, 0.8, 1),  # Subsample ratio of columns for each tree
+      #   min_child_weight = c(1, 5),  # Minimum sum of instance weight (hessian) in a child
+      #   subsample = c(0.6, 0.8, 1)  # Fraction of samples used to train each tree
+      # )
+      # 
+      # # Placeholder for best model and performance tracking
+      # best_xgb_model <- NULL
+      # best_xgb_accuracy <- -Inf
+      # # Prepare Y labels for XGB
+      # Y_xgb <- as.numeric(factor(Y_inner_train)) - 1
+      # 
+      # # Iterate over parameter grid
+      # for(k in 1:nrow(param_grid)) {
+      #   params <- param_grid[k, ]
+      # 
+      #   # Set up model parameters
+      #   xgb_params <- list(
+      #     objective = "binary:logistic",
+      #     max_depth = params$max_depth,
+      #     eta = params$eta,
+      #     gamma = params$gamma,
+      #     colsample_bytree = params$colsample_bytree,
+      #     min_child_weight = params$min_child_weight,
+      #     subsample = params$subsample,
+      #     eval_metric = "auc"
+      #   )
+      #   inner_dtrain <- xgb.DMatrix(data = X_inner_train, label = Y_xgb)
+      #   # Train the model
+      #   xgboost_model <- xgb.train(
+      #     data = inner_dtrain,
+      #     params = xgb_params,
+      #     nrounds = params$nrounds,
+      #     early_stopping_rounds = 10,
+      #     watchlist = list("train" = inner_dtrain),
+      #     verbose = 0  # Turn off verbose output for clarity
+      #   )
+      # 
+      #   # Track best model based on accuracy
+      #   predictions <- predict(xgboost_model, X_inner_train)
+      #   accuracy <- mean(predictions == Y_xgb)  # Calculate accuracy
+      #   if (accuracy > best_xgb_accuracy) {
+      #     best_xgb_accuracy <- accuracy
+      #     best_xgb_model <- xgboost_model
+      #   }
+      # }
+      # 
+      # # You now have the best_xgb_model with the highest accuracy
+      # 
+      # 
+      # xgb_inner_predictions <- predict(best_xgb_model, X_inner_test)
+
+        # ---------------- XGBoost (FIXED) ----------------
     param_grid <- expand.grid(
-      nrounds = c(100, 200),  # Number of boosting rounds
-      max_depth = c(3, 6, 9),  # Depth of the trees
-      eta = c(0.1, 0.3, 0.5),  # Learning rate
-      gamma = c(0, 1),  # Minimum loss reduction required to make a further partition
-      colsample_bytree = c(0.6, 0.8, 1),  # Subsample ratio of columns for each tree
-      min_child_weight = c(1, 5),  # Minimum sum of instance weight (hessian) in a child
-      subsample = c(0.6, 0.8, 1)  # Fraction of samples used to train each tree
+        nrounds = c(100, 200),
+        max_depth = c(3, 6, 9),
+        eta = c(0.1, 0.3, 0.5),
+        gamma = c(0, 1),
+        colsample_bytree = c(0.6, 0.8, 1),
+        min_child_weight = c(1, 5),
+        subsample = c(0.6, 0.8, 1),
+        KEEP.OUT.ATTRS = FALSE,
+        stringsAsFactors = FALSE
     )
-
-    # Placeholder for best model and performance tracking
-    best_xgb_model <- NULL
-    best_xgb_accuracy <- -Inf
-    # Prepare Y labels for XGB
-    Y_xgb <- as.numeric(factor(Y_inner_train)) - 1
-
-    # Iterate over parameter grid
-    for(k in 1:nrow(param_grid)) {
-      params <- param_grid[k, ]
-
-      # Set up model parameters
-      xgb_params <- list(
-        objective = "binary:logistic",
-        max_depth = params$max_depth,
-        eta = params$eta,
-        gamma = params$gamma,
-        colsample_bytree = params$colsample_bytree,
-        min_child_weight = params$min_child_weight,
-        subsample = params$subsample,
-        eval_metric = "auc"
-      )
-      inner_dtrain <- xgb.DMatrix(data = X_inner_train, label = Y_xgb)
-      # Train the model
-      xgboost_model <- xgb.train(
-        data = inner_dtrain,
-        params = xgb_params,
-        nrounds = params$nrounds,
-        early_stopping_rounds = 10,
-        watchlist = list("train" = inner_dtrain),
-        verbose = 0  # Turn off verbose output for clarity
-      )
-
-      # Track best model based on accuracy
-      predictions <- predict(xgboost_model, X_inner_train)
-      accuracy <- mean(predictions == Y_xgb)  # Calculate accuracy
-      if (accuracy > best_xgb_accuracy) {
-        best_xgb_accuracy <- accuracy
-        best_xgb_model <- xgboost_model
-      }
+    
+    Y_xgb_train <- as.numeric(Y_inner_train) - 1
+    inner_dtrain <- xgb.DMatrix(data = X_inner_train, label = Y_xgb_train)
+    
+    best_xgb_model   <- NULL
+    best_xgb_params  <- NULL
+    best_xgb_nrounds <- NULL
+    best_xgb_score   <- -Inf
+    
+    for (k in seq_len(nrow(param_grid))) {
+        row <- param_grid[k, ]
+        
+        xgb_params <- list(
+            objective = "binary:logistic",
+            eval_metric = "auc",
+            max_depth = as.integer(row$max_depth),
+            eta = as.numeric(row$eta),
+            gamma = as.numeric(row$gamma),
+            colsample_bytree = as.numeric(row$colsample_bytree),
+            min_child_weight = as.numeric(row$min_child_weight),
+            subsample = as.numeric(row$subsample)
+        )
+        
+        bst <- xgb.train(
+            data = inner_dtrain,
+            params = xgb_params,
+            nrounds = as.integer(row$nrounds),
+            early_stopping_rounds = 10,
+            watchlist = list(train = inner_dtrain),
+            verbose = 0
+        )
+        
+        # Correct accuracy calculation (probabilities -> class)
+        p_train <- predict(bst, X_inner_train)
+        pred_train <- as.integer(p_train > 0.5)
+        acc_train <- mean(pred_train == Y_xgb_train)
+        
+        if (is.finite(acc_train) && acc_train > best_xgb_score) {
+            best_xgb_score   <- acc_train
+            best_xgb_model   <- bst
+            best_xgb_params  <- xgb_params
+            best_xgb_nrounds <- as.integer(row$nrounds)
+        }
     }
-
-    # You now have the best_xgb_model with the highest accuracy
-
-
-    xgb_inner_predictions <- predict(best_xgb_model, X_inner_test)
-
+    
+    p_test <- predict(best_xgb_model, X_inner_test)
+    xgb_inner_predictions <- factor(
+        ifelse(p_test > 0.5, "Class1", "Class0"),
+        levels = c("Class0", "Class1")
+    )
 
     # Store multiple metrics for each inner fold
     inner_accuracies[[j]] <- list(
@@ -231,15 +293,16 @@ for (i in seq_along(outer_folds)) {
         maxdepth = adaboost_model$bestTune$maxdepth,
         coeflearn = adaboost_model$bestTune$coeflearn # doesn't really get used but saving because it's given
       ),
-      xgboost = list(
+      #xgboost = list(
         # nrounds = xgboost_model$bestTune$nrounds,
-        max_depth = best_xgb_model[["params"]][["max_depth"]],
-        eta = best_xgb_model[["params"]][["eta"]],
-        gamma = best_xgb_model[["params"]][["gamma"]],
-        colsample_bytree = best_xgb_model[["params"]][["colsample_bytree"]],
-        min_child_weight = best_xgb_model[["params"]][["min_child_weight"]],
-        subsample = best_xgb_model[["params"]][["subsample"]]
-      )
+       # max_depth = best_xgb_model[["params"]][["max_depth"]],
+       # eta = best_xgb_model[["params"]][["eta"]],
+       # gamma = best_xgb_model[["params"]][["gamma"]],
+       # colsample_bytree = best_xgb_model[["params"]][["colsample_bytree"]],
+       # min_child_weight = best_xgb_model[["params"]][["min_child_weight"]],
+       # subsample = best_xgb_model[["params"]][["subsample"]]
+      #)
+       xgboost = c(best_xgb_params, list(nrounds = best_xgb_nrounds))
     )
 
 
