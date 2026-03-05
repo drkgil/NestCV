@@ -458,13 +458,21 @@ for (i in seq_along(outer_folds)) {
   log_outer_prob <- as.numeric(predict(log_outer_model, newdata = as.data.frame(X_outer_test), type = "response"))
   log_outer_predictions01 <- to01(log_outer_prob, n_test, "Logistic")
 
-  # LASSO (cv.glmnet) -> probs
-  lasso_outer_prob <- as.numeric(predict(lasso_outer_model, newx = X_outer_test, s = "lambda.min"))
-  lasso_outer_predictions01 <- to01(lasso_outer_prob, n_test, "LASSO")
+  # # LASSO (cv.glmnet) -> probs
+  # lasso_outer_prob <- as.numeric(predict(lasso_outer_model, newx = X_outer_test, s = "lambda.min"))
+  # lasso_outer_predictions01 <- to01(lasso_outer_prob, n_test, "LASSO")
+  #
+  # # Elastic Net -> probs
+  # en_outer_prob <- as.numeric(predict(en_outer_model, newx = X_outer_test, s = "lambda.min"))
+  # en_outer_predictions01 <- to01(en_outer_prob, n_test, "EN")
 
-  # Elastic Net -> probs
-  en_outer_prob <- as.numeric(predict(en_outer_model, newx = X_outer_test, s = "lambda.min"))
-  en_outer_predictions01 <- to01(en_outer_prob, n_test, "EN")
+  # LASSO
+  lasso_outer_predictions <- predict(lasso_outer_model, newx = X_outer_test, s = "lambda.min")
+  lasso_outer_predictions <- ifelse(lasso_outer_predictions > 0.5, 1, 0)
+
+  # Elastic Net
+  en_outer_predictions <- predict(en_outer_model, newx = X_outer_test, s = "lambda.min")
+  en_outer_predictions <- ifelse(en_outer_predictions > 0.5, 1, 0)
 
   # Random Forest (returns class labels if type="response")
   rf_outer_predictions <- predict(rf_outer_model, as.data.frame(X_outer_test), type = "response")
